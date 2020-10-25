@@ -1,2 +1,6 @@
 env/*
 __pycache__/*
+app/recipe/__pycache__/*
+app/recipe/tests/__pycache__/*
+app/app/__pycache__/*
+app/app/__pycache__/urls.cpython-37.pyc
