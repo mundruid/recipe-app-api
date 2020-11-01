@@ -23,10 +23,10 @@ class PublicIngredientsApiTests(TestCase):
         """Test that login ise required accross the endpoint"""
         res = self.client.get(INGREDIENTS_URL)
 
-        res.assertEqual(res.status_code, status.HTTP_401_UNAUTHORIZED)
+        self.assertEqual(res.status_code, status.HTTP_401_UNAUTHORIZED)
 
 
-class PrivateIngredientApuTests(TestCase):
+class PrivateIngredientApiTests(TestCase):
     """ Test the private ingredients API"""
 
     def setUp(self):
@@ -39,7 +39,7 @@ class PrivateIngredientApuTests(TestCase):
 
     def test_retrieve_ingredient_list(self):
         """"Test retrieving a list of ingredients"""
-        Ingredients.objects.create(user=self.user, name='Kale')
+        Ingredient.objects.create(user=self.user, name='Kale')
         Ingredient.objects.create(user=self.user, name='Salt')
 
         res = self.client.get(INGREDIENTS_URL)
@@ -51,11 +51,16 @@ class PrivateIngredientApuTests(TestCase):
 
     def test_ingredient_limited_to_user(self):
         """Test the ingredients for the authenticated user are returned"""
-        user2 = get_user_model().create_user(
+        user2 = get_user_model().objects.create_user(
             'other@test.com',
             'testpass'
         )
 
         Ingredient.objects.create(user=user2, name='Vinegar')
+        ingredient = Ingredient.objects.create(user=self.user, name='Tumeric')
 
-        ingt
+        res = self.client.get(INGREDIENTS_URL)
+
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(res.data), 1)
+        self.assertEqual(res.data[0]['name'], ingredient.name)
